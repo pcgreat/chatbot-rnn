@@ -96,7 +96,7 @@ class TextLoader():
             file_reference = io.open(input_file, "r")
         raw_data = file_reference.read()
         file_reference.close()
-        u_data = raw_data.encode(encoding=self.encoding)
+        u_data = raw_data.decode(encoding=self.encoding)
         vocab_counter.update(u_data)
 
     def _save_vocab(self, vocab_counter, vocab_file):
@@ -146,13 +146,14 @@ class TextLoader():
             file_reference = io.open(input_file, "r")
         raw_data = file_reference.read()
         file_reference.close()
-        data = raw_data.encode(encoding=self.encoding)
+        data = raw_data.decode(encoding=self.encoding)
+
         # Convert the entirety of the data file from characters to indices via the vocab dictionary.
         # How? map(function, iterable) returns a list of the output of the function
         # executed on each member of the iterable. E.g.:
         # [14, 2, 9, 2, 0, 6, 7, 0, ...]
         # np.array converts the list into a numpy array.
-        self.tensor = np.array(map(self.vocab.get, data))
+        self.tensor = np.array(list(map(self.vocab.get, data)))
         # Compress and save the numpy tensor array to data.npz.
         np.savez_compressed(tensor_file, tensor_data=self.tensor)
 
