@@ -1,7 +1,9 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.ops import rnn_cell
-from tensorflow.python.ops import seq2seq
+# from tensorflow.python.ops import rnn_cell
+from tensorflow.contrib.legacy_seq2seq.python.ops import seq2seq
+from tensorflow.contrib.rnn import core_rnn_cell as rnn_cell
+
 
 
 class Model():
@@ -67,7 +69,7 @@ class Model():
                 # tf.split splits that embedding lookup tensor into seq_length tensors (along dimension 1).
                 # Thus inputs is a list of seq_length different tensors,
                 # each of dimension batch_size x 1 x rnn_size.
-                inputs = tf.split(1, args.seq_length, tf.nn.embedding_lookup(embedding, self.input_data))
+                inputs = tf.split(tf.nn.embedding_lookup(embedding, self.input_data), args.seq_length, axis=1)
                 # Iterate through these resulting tensors and eliminate that degenerate second dimension of 1,
                 # i.e. squeeze each from batch_size x 1 x rnn_size down to batch_size x rnn_size.
                 # Thus we now have a list of seq_length tensors, each with dimension batch_size x rnn_size.
@@ -127,7 +129,7 @@ class Model():
         #   but instead concatenate the whole sequence of your outputs in time,
         #   do the projection on this batch-concatenated sequence, then split it
         #   if needed or directly feed into a softmax.
-        output = tf.reshape(tf.concat(1, outputs), [-1, args.rnn_size])
+        output = tf.reshape(tf.concat(outputs, axis=1), [-1, args.rnn_size])
         # Obtain logits node by applying output weights and biases to the output tensor.
         # Logits is a tensor of shape [(batch_size * seq_length) x vocab_size].
         # Recall that outputs is a 2D tensor of shape [(batch_size * seq_length) x rnn_size],

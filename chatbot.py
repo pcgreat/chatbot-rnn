@@ -1,9 +1,9 @@
 from __future__ import print_function
 
 import argparse
-import cPickle
 import copy
 import os
+import pickle as cPickle
 import sys
 
 import numpy as np
@@ -189,7 +189,7 @@ def process_user_command(user_input, states, relevance, temperature, beam_width)
 
 
 def consensus_length(beam_outputs, early_term_token):
-    for l in xrange(len(beam_outputs[0])):
+    for l in range(len(beam_outputs[0])):
         if l > 0 and beam_outputs[0][l - 1] == early_term_token:
             return l - 1, True
         for b in beam_outputs[1:]:

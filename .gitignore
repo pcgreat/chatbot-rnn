@@ -93,3 +93,5 @@ ENV/
 .~*
 _analysis/
 data/labels.csv
+data
+models
