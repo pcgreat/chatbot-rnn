@@ -1,10 +1,11 @@
-import codecs
-import os
-import io
-import collections
 import cPickle
+import collections
+import io
+import os
 from bz2 import BZ2File
+
 import numpy as np
+
 
 class TextLoader():
     # Call this class to load text from a file.
@@ -81,14 +82,17 @@ class TextLoader():
                     file_path = os.path.join(walk_root, file_name)
                     if file_path.endswith(suffixes[0]) or file_path.endswith(suffixes[1]):
                         input_file_list.append(file_path)
-        else: raise ValueError("Not a directory: {}".format(data_dir))
+        else:
+            raise ValueError("Not a directory: {}".format(data_dir))
         return sorted(input_file_list)
 
     def _augment_vocab(self, vocab_counter, input_file):
         # Load up the input.txt file and use it to create a vocab file and a tensor file
         # at the specified file paths.
-        if input_file.endswith(".bz2"): file_reference = BZ2File(input_file, "r")
-        elif input_file.endswith(".txt"): file_reference = io.open(input_file, "r")
+        if input_file.endswith(".bz2"):
+            file_reference = BZ2File(input_file, "r")
+        elif input_file.endswith(".txt"):
+            file_reference = io.open(input_file, "r")
         raw_data = file_reference.read()
         file_reference.close()
         u_data = raw_data.encode(encoding=self.encoding)
@@ -135,8 +139,10 @@ class TextLoader():
         self.vocab = dict(zip(self.chars, range(len(self.chars))))
 
     def _preprocess(self, input_file, tensor_file):
-        if input_file.endswith(".bz2"): file_reference = BZ2File(input_file, "r")
-        elif input_file.endswith(".txt"): file_reference = io.open(input_file, "r")
+        if input_file.endswith(".bz2"):
+            file_reference = BZ2File(input_file, "r")
+        elif input_file.endswith(".txt"):
+            file_reference = io.open(input_file, "r")
         raw_data = file_reference.read()
         file_reference.close()
         data = raw_data.encode(encoding=self.encoding)
@@ -164,7 +170,7 @@ class TextLoader():
         self.num_batches = self.tensor.size / (self.batch_size * self.seq_length)
         if self.tensor_batch_counts[tensor_index] != self.num_batches:
             print("Error in batch size! Expected {}; found {}".format(self.tensor_batch_counts[tensor_index],
-                    self.num_batches))
+                                                                      self.num_batches))
         # Chop off the end of the data tensor so that the length of the data is a whole
         # multiple of the (batch_size x seq_length) product.
         # Do this with the slice operator on the numpy array.
@@ -177,8 +183,8 @@ class TextLoader():
         # Since this is a sequence prediction net, the target is just the input right-shifted
         # by 1.
         xdata = self.tensor
-        ydata = np.copy(self.tensor) # Y-data starts as a copy of x-data.
-        ydata[:-1] = xdata[1:] # Right-shift y-data by 1 using the numpy array slice syntax.
+        ydata = np.copy(self.tensor)  # Y-data starts as a copy of x-data.
+        ydata[:-1] = xdata[1:]  # Right-shift y-data by 1 using the numpy array slice syntax.
         # Replace the very last character of y-data with the first character of the input data.
         ydata[-1] = xdata[0]
         # Split our unidemnsional data array into distinct batches.
@@ -239,4 +245,3 @@ class TextLoader():
         self.pointer = n
         self.current_tensor_index = i
         self._load_preprocessed(i)
-
