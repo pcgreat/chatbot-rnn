@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import copy
 import os
+import pdb
 import pickle as cPickle
 import sys
 
@@ -57,15 +58,15 @@ def sample_main(args):
     # Arguments passed to sample.py direct us to a saved model.
     # Load the separate arguments by which that model was previously trained.
     # That's saved_args. Use those to load the model.
-    with open(config_path) as f:
+    with open(config_path, "rb") as f:
         saved_args = cPickle.load(f)
     # Separately load chars and vocab from the save directory.
-    with open(vocab_path) as f:
+    with open(vocab_path, "rb") as f:
         chars, vocab = cPickle.load(f)
     # Create the model from the saved arguments, in inference mode.
     print("Creating model...")
     net = Model(saved_args, True)
-    config = tf.ConfigProto()
+    config = tf.ConfigProto(device_count = {'GPU': 0})
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
         tf.global_variables_initializer().run()
@@ -73,6 +74,7 @@ def sample_main(args):
         # Restore the saved variables, replacing the initialized values.
         print("Restoring weights...")
         saver.restore(sess, model_path)
+        pdb.set_trace()
         chatbot(net, sess, chars, vocab, args.n, args.beam_width, args.relevance, args.temperature)
         # beam_sample(net, sess, chars, vocab, args.n, args.prime,
         # args.beam_width, args.relevance, args.temperature)

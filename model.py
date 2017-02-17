@@ -26,7 +26,10 @@ class Model():
 
         # Call tensorflow library tensorflow-master/tensorflow/python/ops/rnn_cell
         # to create a layer of rnn_size cells of the specified basic type (RNN/GRU/LSTM).
-        cell = cell_fn(args.rnn_size, state_is_tuple=True)
+        if args.model == "gru":
+            cell = cell_fn(args.rnn_size)
+        else:
+            cell = cell_fn(args.rnn_size, state_is_tuple=True)
 
         # Use the same rnn_cell library to create a stack of these cells
         # of num_layers layers. Pass in a python list of these cells.

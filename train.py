@@ -19,7 +19,7 @@ def main():
                         help='size of RNN hidden state')
     parser.add_argument('--num_layers', type=int, default=4,
                         help='number of layers in the RNN')
-    parser.add_argument('--model', type=str, default='lstm', #TODO: change to GRU
+    parser.add_argument('--model', type=str, default='gru', #TODO: change to GRU
                         help='rnn, gru, or lstm')
     parser.add_argument('--batch_size', type=int, default=40,
                         help='minibatch size')
@@ -27,7 +27,7 @@ def main():
                         help='RNN sequence length')
     parser.add_argument('--num_epochs', type=int, default=50,
                         help='number of epochs')
-    parser.add_argument('--save_every', type=int, default=1000,
+    parser.add_argument('--save_every', type=int, default=1,
                         help='save frequency')
     parser.add_argument('--grad_clip', type=float, default=5.,
                         help='clip gradients at this value')
@@ -78,7 +78,7 @@ def train(args):
     print("Building the model")
     model = Model(args)
 
-    config = tf.ConfigProto(log_device_placement=False)
+    config = tf.ConfigProto(log_device_placement=False, device_count = {'GPU': 0})
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
         tf.global_variables_initializer().run()
