@@ -9,6 +9,7 @@ import sys
 
 import numpy as np
 import tensorflow as tf
+import time
 
 from model import Model
 
@@ -44,7 +45,7 @@ args = main()
 beam_width = args.beam_width
 relevance = args.relevance
 temperature = args.temperature
-max_length = 200
+max_length = 100
 
 
 def get_paths(input_path):
@@ -148,11 +149,14 @@ def initial_state_with_relevance_masking(net, sess, relevance):
 
 
 def make_response(text):
+    start = time.time()
     try:
         text = text.lower().strip() + "\n"
     except:
         text = "\n"
-    return chatbot(text)
+    response = chatbot(text)
+    print("Duration: %s" % (time.time() - start))
+    return response
 
 
 def chatbot(text):
@@ -177,7 +181,7 @@ def chatbot(text):
         states = forward_text(net, sess, states, vocab, chars[char_token])
         # sys.stdout.flush()
         if i >= max_length: break
-        # states = forward_text(net, sess, states, vocab, '\n> ')
+        states = forward_text(net, sess, states, vocab, '\n> ')
     return output.strip()
 
 
@@ -352,7 +356,7 @@ print("Creating model...")
 net = Model(saved_args, True)
 config = tf.ConfigProto(device_count={'GPU': 0})
 config.gpu_options.allow_growth = True
-sess = tf.Session(config=config)
+sess = tf.InteractiveSession(config=config)
 tf.global_variables_initializer().run(session=sess)
 saver = tf.train.Saver(net.save_variables_list())
 # Restore the saved variables, replacing the initialized values.
