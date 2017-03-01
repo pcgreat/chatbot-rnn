@@ -3,6 +3,7 @@ import os
 import io
 import collections
 import cPickle
+import pdb
 from bz2 import BZ2File
 import numpy as np
 
@@ -29,12 +30,19 @@ class TextLoader():
         if self._preprocess_required(vocab_file, sizes_file, self.tensor_file_template, self.input_file_count):
             # If either the vocab file or the tensor file doesn't already exist, create them.
             print("Preprocessing the following files: {}".format(self.input_files))
-            vocab_counter = collections.Counter()
+            """vocab_counter = collections.Counter()
             for i in xrange(self.input_file_count):
                 print("reading vocab from input file {}".format(self.input_files[i]))
                 self._augment_vocab(vocab_counter, self.input_files[i])
             print("saving vocab file")
-            self._save_vocab(vocab_counter, vocab_file)
+            self._save_vocab(vocab_counter, vocab_file)"""
+            print "loading vocab file"
+            with open(vocab_file, 'rb') as f:
+                self.chars, self.vocab = cPickle.load(f)
+            # Use the character tuple to regenerate vocab_size and the vocab dictionary.
+            self.vocab_size = len(self.chars)
+            print("the vocab size is %s" % self.vocab_size)
+
 
             for i in xrange(self.input_file_count):
                 print("preprocessing input file {}".format(self.input_files[i]))
@@ -129,10 +137,9 @@ class TextLoader():
         # Load the character tuple (vocab.pkl) to self.chars.
         # Remember that it is in descending order of character frequency in the data.
         with open(vocab_file, 'rb') as f:
-            self.chars = cPickle.load(f)
+            self.chars, self.vocab = cPickle.load(f)
         # Use the character tuple to regenerate vocab_size and the vocab dictionary.
         self.vocab_size = len(self.chars)
-        self.vocab = dict(zip(self.chars, range(len(self.chars))))
 
     def _preprocess(self, input_file, tensor_file):
         if input_file.endswith(".bz2"): file_reference = BZ2File(input_file, "r")
